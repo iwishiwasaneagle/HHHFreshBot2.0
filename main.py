@@ -145,13 +145,10 @@ class HHHBot:
             if not pm.was_comment:
                 if "unsubscribe" in subject:
                     if 'daily' in body:
-                        log.info("Unsubscribing {} from daily".format(author))
                         response = self.unsubscribeUser(author, 'daily')
                     elif 'weekly' in body:
-                        log.info("Unsubscribing {} from weekly".format(author))
                         response = self.unsubscribeUser(author, 'weekly')
                     elif 'remove' in body:
-                        log.info("Unsubscribing {} from all mailing lists".format(author))
                         response = self.unsubscribeUser(author, 'both')
                     else:
                         log.info("Unsubscribe message from {} could not be understood".format(author))
@@ -182,6 +179,7 @@ class HHHBot:
 
 
                 try:
+                    log.debug(response)
                     pm.reply(response+self.footer)
                 except Exception:
 
@@ -222,20 +220,23 @@ class HHHBot:
         val = self.c.fetchone()
         msg = ''
         if val is None:
-            return 'Unable to unsubscribe because you are not currently subscribed to any mailing lists.'
+            msg = 'Unable to unsubscribe because you are not currently subscribed to any mailing lists.'
         else:
             if val[1] == "both":
                 if unsubscribeFrom == "daily":
                     self.c.execute("UPDATE subscriptions SET SUBSCRIPTION=? WHERE USER=?", ("weekly", user))
                     msg = 'You have been unsubscribed from the daily mailing list.'
+                    log.info("Unsubscribing {} from daily mailing lists".format(user))
                 elif unsubscribeFrom == "weekly":
                     self.c.execute("UPDATE subscriptions SET SUBSCRIPTION=? WHERE USER=?", ("daily", user))
+                    log.info("Unsubscribing {} from daily weekly lists".format(user))
                     msg = 'You have been unsubscribed from the weekly mailing list.'
             else:
                 self.c.execute('DELETE FROM subscriptions WHERE USER = ?', (user,))
+                log.info("Unsubscribing {} from all mailing lists".format(user))
                 msg = 'You have been unsubscribed from both mailing lists. Sorry to see you go!'
-            self.db.commit()
-            return msg
+        self.db.commit()
+        return msg
 
     def generate(self, sTimeFrame):
 
@@ -377,7 +378,7 @@ if __name__ == "__main__":
     if len(sys.argv)==2:
         if sys.argv[1] in triggers:
             h = HHHBot()
-            try:
+            #try:
                 if sys.argv[1] == triggers[0]:
                     # Run this twice a day
                     h.fetchNewPosts()
@@ -396,8 +397,8 @@ if __name__ == "__main__":
                     h.checkInbox()
                 else:
                     print("\n".join([f for f in triggers]))
-            except Exception as e:
-                log.exception("Exception in main core of code... yikes")
+            #except Exception as e:
+            #    log.exception("Exception in main core of code... yikes")
 
         else:
             log.error("No correct argument was given")
