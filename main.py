@@ -200,20 +200,20 @@ class HHHBot:
     def subscribeUser(self, user, subscription):
         self.c.execute("SELECT * FROM subscriptions WHERE USER = ?", (user,))
         msg = ''
-        val = self.c.fetchall()
+        val = self.c.fetchone()
         if val is None:
             self.c.execute("INSERT INTO subscriptions VALUES (?,?)", (user, subscription))
             log.info("Subscribed {} to {}".format(user, subscription))
             msg = "You have been subscribed to the {} mailing list".format(subscription)
         else:
-            for row in val:
-                if row[1] == subscription:
+                if val[1] == subscription:
                     log.info("User {} already subscribed to \"{}\" mailing list".format(user, subscription))
                     msg = "You are already subscribed to the \"{}\" mailing list!".format(subscription)
                 else:
                     self.c.execute("UPDATE subscriptions SET SUBSCRIPTION=? WHERE USER=?", ("both", user))
                     log.info("Subscribed {} to both".format(user))
                     msg = "You have been subscribed to both mailing lists!"
+        log.debug(msg)
         self.db.commit()
         return msg
 
