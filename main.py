@@ -179,7 +179,6 @@ class HHHBot:
 
 
                 try:
-                    log.debug(response)
                     pm.reply(response+self.footer)
                 except Exception:
 
@@ -211,7 +210,6 @@ class HHHBot:
                     self.c.execute("UPDATE subscriptions SET SUBSCRIPTION=? WHERE USER=?", ("both", user))
                     log.info("Subscribed {} to both".format(user))
                     msg = "You have been subscribed to both mailing lists!"
-        log.debug(msg)
         self.db.commit()
         return msg
 
@@ -222,7 +220,7 @@ class HHHBot:
         if val is None:
             msg = 'Unable to unsubscribe because you are not currently subscribed to any mailing lists.'
         else:
-            if val[1] == "both":
+            if val[1] == "both" and unsubscribeFrom != "both":
                 if unsubscribeFrom == "daily":
                     self.c.execute("UPDATE subscriptions SET SUBSCRIPTION=? WHERE USER=?", ("weekly", user))
                     msg = 'You have been unsubscribed from the daily mailing list.'
@@ -379,24 +377,24 @@ if __name__ == "__main__":
         if sys.argv[1] in triggers:
             h = HHHBot()
             #try:
-                if sys.argv[1] == triggers[0]:
-                    # Run this twice a day
-                    h.fetchNewPosts()
-                    h.updateScore()
-                    h.checkInbox()
-                elif sys.argv[1] == triggers[1]:
-                    h.checkInbox()
-                    h.mailDaily()
-                elif sys.argv[1] == triggers[2]:
-                    h.checkInbox()
-                    h.mailWeekly()
-                elif sys.argv[1] == triggers[3]:
-                    h.checkInbox()
-                    h.postWeekly()
-                elif sys.argv[1] == triggers[4]:
-                    h.checkInbox()
-                else:
-                    print("\n".join([f for f in triggers]))
+            if sys.argv[1] == triggers[0]:
+                # Run this twice a day
+                h.fetchNewPosts()
+                h.updateScore()
+                h.checkInbox()
+            elif sys.argv[1] == triggers[1]:
+                h.checkInbox()
+                h.mailDaily()
+            elif sys.argv[1] == triggers[2]:
+                h.checkInbox()
+                h.mailWeekly()
+            elif sys.argv[1] == triggers[3]:
+                h.checkInbox()
+                h.postWeekly()
+            elif sys.argv[1] == triggers[4]:
+                h.checkInbox()
+            else:
+                print("\n".join([f for f in triggers]))
             #except Exception as e:
             #    log.exception("Exception in main core of code... yikes")
 
