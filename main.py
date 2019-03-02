@@ -204,8 +204,8 @@ class HHHBot:
             msg = "You have been subscribed to the {} mailing list".format(subscription)
         else:
                 if val[1] == subscription:
-                    log.info("User {} already subscribed to \"{}\" mailing list".format(user, subscription))
-                    msg = "You are already subscribed to the \"{}\" mailing list!".format(subscription)
+                    log.info("User {} already subscribed to {} mailing list".format(user, subscription))
+                    msg = "You are already subscribed to the {} mailing list!".format(subscription)
                 else:
                     self.c.execute("UPDATE subscriptions SET SUBSCRIPTION=? WHERE USER=?", ("both", user))
                     log.info("Subscribed {} to both".format(user))
