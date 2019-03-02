@@ -1,0 +1,7 @@
+fresh.db
+vals.py
+*.log
+venv/*
+.idea/*
+__pycache__/*
+*.pyc
