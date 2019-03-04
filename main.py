@@ -246,7 +246,7 @@ class HHHBot:
         for post in self.c:
 
             id_ = post[0]
-            title = post[1].replace("|", "\|")
+            title = post[1].replace("|", ":") # backslash doesn't escape the | on reddit
             perma = post[2]
             url = post[3]
             t = post[4]
@@ -359,10 +359,11 @@ class HHHBot:
                 if part == 0:
                     submission = sub.submit("The Weekly Freshness for the week beginning {}".format(message[0][1]), selftext="**Part {}**\n\n".format(part+1)+parts[part]+self.footer)
                 else:
+           	    log.debug("Submitting part {}/{} to {}".format(part+1, len(parts), sub.display_name))
                     submission = submission.reply("**Part {}**\n\n".format(part+1)+parts[part]+self.footer)
 
             i+=1
-        log.info("Submitted weekly messages freshness to {}".format(sub.display_name))
+        log.info("Submitted weekly freshness to {}".format(sub.display_name))
 
 
 if __name__ == "__main__":
