@@ -351,23 +351,18 @@ class HHHBot:
             text = tempText
         parts.append(text) #To account for if the last day exceeds the prawCharLimit, or there is only one part
 
-        self.c.execute('SELECT * FROM subscriptions WHERE SUBSCRIPTION = ? OR SUBSCRIPTION = ?', ('weekly', 'both',))
-        users= self.c.fetchall()
         i = 0
         for part in range(len(parts)):
-            for row in users:
-                if len(parts) == 1:
-                    log.debug("Mailing {} their weekly message".format(row[0]))
-                    sub.submit("The Weekly Freshness for the week beginning {}".format(message[0][1]), selftext=parts[part]+self.footer)
+            if len(parts) == 1:
+                sub.submit("The Weekly Freshness for the week beginning {}".format(message[0][1]), selftext=parts[part]+self.footer)
+            else:
+                if part == 0:
+                    submission = sub.submit("The Weekly Freshness for the week beginning {}".format(message[0][1]), selftext="**Part {}**\n\n".format(part+1)+parts[part]+self.footer)
                 else:
-                    if part == 0:
-                        submission = sub.submit("The Weekly Freshness for the week beginning {}".format(message[0][1]), selftext="**Part {}**\n\n".format(part+1)+parts[part]+self.footer)
-                        log.debug("Mailing {} their weekly message part {}".format(row[0], part+1))
-                    else:
-                        submission = submission.reply("**Part {}**\n\n".format(part+1)+parts[part]+self.footer)
+                    submission = submission.reply("**Part {}**\n\n".format(part+1)+parts[part]+self.footer)
 
-                i+=1
-        log.info("Sent {i} weekly messages to {u} people".format(i=i, u=len(users)))
+            i+=1
+        log.info("Submitted weekly messages freshness to {}".format(sub.display_name))
 
 
 if __name__ == "__main__":
