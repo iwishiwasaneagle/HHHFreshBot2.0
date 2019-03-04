@@ -88,7 +88,7 @@ class HHHBot:
 
                 if self.c.fetchone() is None:
                     id_ = post.id
-                    title = post.title.replace("[", "\[").replace("]", "\]")
+                    title = post.title.replace("[", "\[").replace("]", "\]").replace("|", "\|")
                     permalink = 'https://redd.it/' + id_
                     url = post.url
                     created = post.created_utc
