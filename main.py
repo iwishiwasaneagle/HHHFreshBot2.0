@@ -246,7 +246,7 @@ class HHHBot:
         for post in self.c:
 
             id_ = post[0]
-            title = post[1]..replace("|", "\|")
+            title = post[1].replace("|", "\|")
             perma = post[2]
             url = post[3]
             t = post[4]
