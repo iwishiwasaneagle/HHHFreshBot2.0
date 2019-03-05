@@ -7,6 +7,7 @@ import logging
 import os
 import vals
 import sys
+import unidecode
 from logging.handlers import TimedRotatingFileHandler
 
 FORMATTER = logging.Formatter(
@@ -87,13 +88,13 @@ class HHHBot:
                 self.c.execute("SELECT * FROM posts WHERE ID=?", (post.id,))
 
                 if self.c.fetchone() is None:
-                    id_ = post.id
-                    title = post.title.replace("[", "\[").replace("]", "\]").replace("|", "\|")
-                    permalink = 'https://redd.it/' + id_
-                    url = post.url
+                    id_ = unidecode.unidecode(post.id)
+                    title = unidecode.unidecode(post.title.replace("[", "\[").replace("]", "\]").replace("|", "\|"))
+                    permalink = unidecode.unidecode('https://redd.it/' + id_)
+                    url = unidecode.unidecode(post.url)
                     created = post.created_utc
                     score = post.score
-                    submitter = post.author.name
+                    submitter = unidecode.unidecode(post.author.name)
 
 
                     log.debug("Fresh post found - name {title}, id {id}, score {score}, age {age} hrs".format(
