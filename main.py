@@ -270,7 +270,7 @@ class HHHBot:
             for item in dict_[key]:
                 text += item
             text+="\n\n"
-            msg.append((text,key,time.mktime(datetime.datetime.strptime(key, "%A, %B %-d, %Y").timetuple())))
+            msg.append((text,key,time.mktime(datetime.datetime.strptime(key, "%A, %B %e, %Y").timetuple())))
 
         msg.sort(key=lambda x: x[2])
 
