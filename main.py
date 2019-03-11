@@ -237,9 +237,9 @@ class HHHBot:
         self.db.commit()
         return msg
 
-    def generate(self, sTimeFrame):
+    def generate(self, timeStart, timeEnd):
 
-        self.c.execute("SELECT * FROM posts WHERE TIME>? ORDER BY SCORE DESC", (time.time()-sTimeFrame,))
+        self.c.execute("SELECT * FROM posts WHERE TIME<? AND TIME>? ORDER BY SCORE DESC", (timeStart,timeEnd))
 
         dict_ = {}
 
@@ -251,7 +251,7 @@ class HHHBot:
             perma = post[2]
             url = post[3]
             t = post[4]
-            key = datetime.datetime.utcfromtimestamp(t).strftime("%A, %B %w, %Y")
+            key = datetime.datetime.utcfromtimestamp(t).strftime("%A, %B %-d, %Y")
             score = post[5]
             submitter = post[6]
 
@@ -270,16 +270,16 @@ class HHHBot:
             for item in dict_[key]:
                 text += item
             text+="\n\n"
-            msg.append((text,key))
+            msg.append((text,key,time.mktime(datetime.datetime.strptime(key, "%A, %B %-d, %Y").timetuple())))
 
-        msg.sort(key=lambda x: time.strptime(x[1], "%A, %B %w, %Y"))
+        msg.sort(key=lambda x: x[2])
 
         return msg
 
     def mailDaily(self):
         self.updateScore()
 
-        message = self.generate(1*24*60*60)
+        message = self.generate(time.time(), time.mktime(((datetime.datetime.utcnow()-datetime.timedelta(1)).timetuple())))
         intro = 'Welcome to The Daily [Fresh]ness! Fresh /r/hiphopheads posts delivered right to your inbox ever day.\n\n'
 
         text = intro
@@ -298,7 +298,7 @@ class HHHBot:
     def mailWeekly(self):
         self.updateScore()
 
-        message = self.generate(7*24*60*60)
+        message = self.generate(time.time(), time.mktime(((datetime.datetime.utcnow()-datetime.timedelta(7)).timetuple())))
         intro = 'Welcome to The Weekly [Fresh]ness! Fresh /r/hiphopheads posts delivered right to your inbox every week.\n\n'
 
         text = intro
