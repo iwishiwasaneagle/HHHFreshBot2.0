@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import spotipy.util as util
 import spotipy
 import sqlite3
