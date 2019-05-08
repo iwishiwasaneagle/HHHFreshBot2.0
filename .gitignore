@@ -2,6 +2,7 @@ fresh.db
 vals.py
 *.log*
 
+env/*
 venv/*
 .idea/*
 __pycache__/*
