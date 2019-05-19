@@ -353,7 +353,7 @@ class HHHBot:
 
 
 if __name__ == "__main__":
-    triggers = ["getFresh", "mailDaily", "mailWeekly", "postWeekly", "checkMail", "help", "testing"]
+    triggers = ["getFresh", "mailDaily", "mailWeekly", "postWeekly", "checkMail", "help", "updatePlaylist"]
     log.debug("Starting {} with args {}".format(__name__,sys.argv))
     t = time.time()
     if len(sys.argv)==2:
@@ -372,12 +372,14 @@ if __name__ == "__main__":
                     h.checkInbox()
                     h.mailWeekly()
                 elif sys.argv[1] == triggers[3]:
-       		        h.checkInbox()
-        	        h.postWeekly()
+   		    h.checkInbox()
+        	    h.postWeekly()
                 elif sys.argv[1] == triggers[4]:
                	    h.checkInbox()
                 elif sys.argv[1] == triggers[6]:
-               	    h.garbageDisposal()     
+                    h.updateScore()
+                    h.spotify_playlist()
+            	    
                 else:
                     print("\n".join([f for f in triggers]))
             except Exception as e:
