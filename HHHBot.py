@@ -10,6 +10,7 @@ import unidecode
 import numpy as np
 import logger
 import weekly_playlist
+from tqdm import tqdm
 
 log = logger.get_logger(__name__)
 
@@ -99,7 +100,8 @@ class HHHBot:
         log.debug("Starting update scores process")
         t = time.time()
         self.c.execute("SELECT * FROM posts")
-        for row in self.c:
+        posts = self.c.fetchall()
+        for row in tqdm(posts):
             id_ = row[0]
             oldScore = row[5]
             post = self.r.submission(id=id_)
@@ -361,7 +363,7 @@ if __name__ == "__main__":
             h = HHHBot()
             try:
                 if sys.argv[1] == triggers[0]:
-	                # Run this twice a day
+	                # Run this twice a day, takes forever to run....
                     h.fetchNewPosts()
                     h.updateScore()
                     h.checkInbox()
@@ -377,7 +379,8 @@ if __name__ == "__main__":
                 elif sys.argv[1] == triggers[4]:
                	    h.checkInbox()
                 elif sys.argv[1] == triggers[6]:
-                    h.updateScore()
+                    # Not needed really, a call to spotify_playlist() is made in weekly post
+                    #h.updateScore()
                     h.spotify_playlist()
             	    
                 else:
