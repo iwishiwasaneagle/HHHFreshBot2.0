@@ -276,7 +276,8 @@ class HHHBot:
         i = 0
         for row in self.c:
             log.debug("Mailing {} their daily message".format(row[0]))
-            self.r.redditor((row[0])).message("The Daily Freshness for {}".format(message[0][1]), text)
+            formattedDatetime = datetime.utcfromtimestamp(time.time()).strftime("%A, %B, %-d, %Y")
+            self.r.redditor((row[0])).message("The Daily Freshness for {}".format(formattedDatetime, text) #message[0][1]), text)
             i+=1
         log.info("Sent {i} people their daily message".format(i=i))
 
@@ -321,11 +322,16 @@ class HHHBot:
             sub = self.r.subreddit("testingsubforbot123")
         else:
             sub = self.sub
-        playlist_url, len_found, len_total, perc = self.spotify_playlist()
         message = self.generate(time.time(), time.mktime(((datetime.datetime.utcnow()-datetime.timedelta(7)).timetuple())))
-        intro = 'Welcome to The Weekly [Fresh]ness! Fresh /r/hiphopheads posts delivered right to your inbox every week.\n\n[Spotify playlist]({}) with {}% ({}/{}) songs from this week! \n\n^This ^playlist ^is ^updated ^weekly!\n\n'.format(
-            playlist_url, perc, len_found, len_total)
 
+        try:
+            playlist_url, len_found, len_total, perc = self.spotify_playlist()          
+            intro = 'Welcome to The Weekly [Fresh]ness! Fresh /r/hiphopheads posts every week.\n\n[Spotify playlist]({}) with {}% ({}/{}) songs from this week! \n\n^This ^playlist ^is ^updated ^weekly!\n\n'.format(
+            playlist_url, perc, len_found, len_total)
+        except Exception as e:
+            intro = 'Welcome to The Weekly [Fresh]ness! Fresh /r/hiphopheads posts every week.\n\n'
+            log.error("An error has occured whilst updating the spotify playlist")
+            log.error(e)
         text = intro
         parts = []
         for day in message:
