@@ -85,10 +85,14 @@ def weekly_playlist(sqlite3_cursor):
 
     songs_to_add = []
     for song in weekly_songs:
-        search = sp.search(song)
-        for i, result in enumerate(search["tracks"]['items']):
-            songs_to_add.append(result["uri"])
-            break
+        try:
+            search = sp.search(song)
+            for i, result in enumerate(search["tracks"]['items']):
+                songs_to_add.append(result["uri"])
+                break
+        except Exception as e:
+            log.error("Eror whilst searching for song with name '{}'".format(song))
+            log.error(e)
     log.info("{}/{} ({}%) of fresh songs have been found on spotify".format(
         len(songs_to_add), len(weekly_songs), round((100*len(songs_to_add))/len(weekly_songs),1)
     ))
