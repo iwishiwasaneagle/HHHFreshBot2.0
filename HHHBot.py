@@ -276,7 +276,7 @@ class HHHBot:
         i = 0
         for row in self.c:
             log.debug("Mailing {} their daily message".format(row[0]))
-            formattedDatetime = datetime.utcfromtimestamp(time.time()).strftime("%A, %B, %-d, %Y")
+            formattedDatetime = datetime.datetime.utcfromtimestamp(time.time()).strftime("%A, %B, %-d, %Y")
             self.r.redditor((row[0])).message("The Daily Freshness for {}".format(formattedDatetime, text) #message[0][1]), text)
             i+=1
         log.info("Sent {i} people their daily message".format(i=i))
