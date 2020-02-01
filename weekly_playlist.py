@@ -110,7 +110,12 @@ def weekly_playlist(sqlite3_cursor):
     )
 
     log.debug("weekly_playlist was succesfully run in {}s".format(time.time()-t))
-    return weekly_playlist['external_urls']['spotify'], len(songs_to_add), len(weekly_songs), round((100*len(songs_to_add))/len(weekly_songs),1)
+    try:
+        return_Val = weekly_playlist['external_urls']['spotify'], len(songs_to_add), len(weekly_songs), round((100*len(songs_to_add))/len(weekly_songs),1)
+    except:
+        return_Val = "https://open.spotify.com/playlist/2f4DSt4MUFppJvGdySWCIT?si=SHFA15VvSoGWYWHlrsWWwQ", len(songs_to_add), len(weekly_songs), round((100*len(songs_to_add))/len(weekly_songs),1)
+
+    return return_Val
 
 if __name__ == "__main__":
     log.debug("Running weekly_playlist test")
