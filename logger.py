@@ -5,6 +5,7 @@ import vals
 import os
 import sys
 import praw
+from datetime import datetime
 
 FORMATTER = logging.Formatter(
     "%(asctime)s — %(name)s — %(levelname)s — %(message)s")
@@ -33,7 +34,7 @@ class cust_logger(logging.Logger):
 
     def error(self, msg, *args, **kwargs):
         if self.r is not None:
-            self.r.redditor(vals.admin).message("Test", "Test")
+            self.r.redditor(vals.admin).message("An error occured in the HHHFreshness bot at {}".format(datetime.now().strftime("%H:%M %d/%m/%Y")), msg)
 	return super(cust_logger, self).warning(msg, *args, **kwargs)
 
 def get_logger(logger_name):
