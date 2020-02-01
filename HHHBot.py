@@ -39,7 +39,8 @@ class HHHBot:
                              password=vals.password, username=vals.username, user_agent=vals.userAgent)
         self.prawCharLimit = 10000*0.9
 
-        self.sub = self.r.subreddit(vals.subreddit)
+        self.sub_posting = self.r.subreddit(vals.subreddit)       
+        self.hhh = self.r.subreddit(vals.hhh)
 
         self.today = datetime.datetime.utcnow().strftime('%A')
         self.ydat = (datetime.datetime.utcnow() - datetime.timedelta(1)).strftime('%A')
@@ -55,7 +56,7 @@ class HHHBot:
         self.db.close()
 
     def fetchNewPosts(self):
-        for post in self.sub.new(limit=5000):
+        for post in self.hhh.new(limit=5000):
             if '[fresh' in post.title.lower() and post.score > self.postScoreThreshold and time.time() - post.created_utc < self.fetchPostMaxAge:  # [fresh...] tag, high enough score, and not too old
 
                 self.c.execute("SELECT * FROM posts WHERE ID=?", (post.id,))
@@ -127,6 +128,7 @@ class HHHBot:
                 author = "None"
 
             if not pm.was_comment:
+                no_resp = False
                 if "unsubscribe" in subject:
                     if 'daily' in body:
                         response = self.unsubscribeUser(author, 'daily')
@@ -151,21 +153,26 @@ class HHHBot:
 
                 else:
                     log.info("Message from {author} has been forwarded to admin".format(author=author))
-                    self.r.redditor(vals.admin).message('PM from /u/{}'.format(author),
+                    try:
+                        self.r.redditor(vals.admin).message('PM from /u/{}'.format(author),
                                                         "Message from /u/{author}\n\nSubject: {subject} \n\n---\n\n {body}".format(
                                                             author=author,
                                                             subject=subject,
-                                                            body=body
+                                                            body=body.decode('utf_8')
                                                         ) + self.footer)
+                    except UnicodeEncodeError as err:
+                        self.r.redditor(vals.admin).message('PM from /u/{} (error in code)'.format(author),
+                                "Error in code {err}, check logs on RPi".format(err=err))
                     response = 'I received your message, but I\'m just a bot! I forwarded it to my admin {admin} who will take a look at it when he "\
                                 "gets a chance.\n\nIf it\'s urgent, you should PM them directly.\n\nIf you\'re trying to subscribe to one of the roundups,"\
                                  "use the links below.\n\nThanks!'.format(admin=vals.admin)
-
+                    no_resp = True
+                #log.debug("no_resp = {}".format(no_resp))
 
                 try:
-                    pm.reply(response+self.footer)
+                    if not no_resp:
+                        pm.reply(response+self.footer)
                 except Exception:
-
                     log.exception("Failed to send message to {} with body {}".format(author, response))
             else:
                 log.info("Forwarding comment message to admin")
@@ -277,12 +284,16 @@ class HHHBot:
         for row in self.c:
             log.debug("Mailing {} their daily message".format(row[0]))
             formattedDatetime = datetime.datetime.utcfromtimestamp(time.time()).strftime("%A, %B, %-d, %Y")
-            self.r.redditor((row[0])).message("The Daily Freshness for {}".format(formattedDatetime, text) #message[0][1]), text)
+            try:
+                self.r.redditor((row[0])).message("The Daily Freshness for {}".format(formattedDatetime), text) #message[0][1]), text)
+            except Exception as e:
+                log.error("Error caught: "+e)
+
             i+=1
         log.info("Sent {i} people their daily message".format(i=i))
 
     def mailWeekly(self):
-        self.updateScore()
+        #self.updateScore()
 	
         message = self.generate(time.time(), time.mktime(((datetime.datetime.utcnow()-datetime.timedelta(7)).timetuple())))
         intro = 'Welcome to The Weekly [Fresh]ness! Fresh /r/hiphopheads posts delivered right to your inbox every week.\n\n'
@@ -310,18 +321,20 @@ class HHHBot:
                     self.r.redditor((row[0])).message("The Weekly Freshness for the week beginning {}".format(message[0][1]), parts[part])
                 else:
                     log.debug("Mailing {} their weekly message part {}".format(row[0], part+1))
-                    self.r.redditor((row[0])).message(
-                        "The Weekly Freshness for the week beginning {} : Part {}".format(message[0][1], part+1), parts[part])
+                    try:
+                        self.r.redditor((row[0])).message("The Weekly Freshness for the week beginning {} : Part {}".format(message[0][1], part+1), parts[part])
+                    except Exception as e:
+                        log.error("Error caught:" + e)
 
                 i+=1
         log.info("Sent {i} weekly messages to {u} people".format(i=i, u=len(users)))
 
     def postWeekly(self):
-        self.updateScore()
+        #self.updateScore()
         if vals.DEV:
             sub = self.r.subreddit("testingsubforbot123")
         else:
-            sub = self.sub
+            sub = self.sub_posting
         message = self.generate(time.time(), time.mktime(((datetime.datetime.utcnow()-datetime.timedelta(7)).timetuple())))
 
         try:
